@@ -7,3 +7,7 @@ Autonomous Systems Tracer
 
 Скомпилированная программа:
 https://drive.google.com/file/d/1fAETH7Z9Gf4LSWdUAkcYY_zeawvq4ZzS/view?usp=sharing
+
+Дрягин Сергей Андреевич
+МО-202
+МЕН-282203
