@@ -53,27 +53,48 @@ namespace ASTrace
                 }
                 foreach (var s in tracered)
                 {
-                    var data = s.Split(' ');
-                    var n = new DataGridViewTextBoxCell() { Value = data[0] };
-                    var ip = new DataGridViewTextBoxCell() { Value = data[1] };
-                    var asn = new DataGridViewTextBoxCell() { Value = data[2] };
+                    var n = new DataGridViewTextBoxCell() { Value = s[0] };
+                    var ip = new DataGridViewTextBoxCell() { Value = s[1] };
+                    var asn = new DataGridViewTextBoxCell() { Value = s[2] };
+                    var c = new DataGridViewTextBoxCell() { Value = s[3] };
+                    var isp = new DataGridViewTextBoxCell() { Value = s[4] };
                     var row = new DataGridViewRow();
-                    row.Cells.AddRange(n, ip, asn);
+                    row.Cells.AddRange(n, ip, asn, c, isp);
                     dataGridView1.Rows.Add(row);
                 }
                 pictureBox1.Hide();
                 dataGridView1.Show();
                 if (tracer.TracedToEnd)
-                    label1.Text = "Готово\nТрассировка до\n" + ASTracer.GetAdressText(textBox1.Text) + "\nбыла успешно завершена";
+                    label1.Text = "Готово. Трассировка до " + ASTracer.GetAdressText(textBox1.Text) + " была успешно завершена";
                 else
-                    label1.Text = "Трассировка до\n"+ ASTracer.GetAdressText(textBox1.Text) +"\nне была закончена";
+                    label1.Text = "Трассировка до "+ ASTracer.GetAdressText(textBox1.Text) +" не была закончена";
             }
         }
 
-        async Task<String[]> traceAS()
+        async Task<String[][]> traceAS()
         {
             var tracered = await Task.Run(() => tracer.Trace(textBox1.Text));
             return tracered;
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox1.ForeColor == SystemColors.WindowFrame && textBox1.Text != prompt && textBox1.Text != "")
+            {
+                textBox1.ForeColor = SystemColors.WindowText;
+                textBox1.Text = textBox1.Text[0].ToString();
+                textBox1.SelectionStart = 1;
+                textBox1.SelectionLength = 0;
+            }
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                button1_Click(this, EventArgs.Empty);
+                e.SuppressKeyPress = true;
+            }
         }
     }
 }

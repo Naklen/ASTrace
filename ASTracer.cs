@@ -12,14 +12,14 @@ namespace ASTrace
     {
         public bool TracedToEnd { get; private set; }       
 
-        public string[] Trace(string adress)
+        public string[][] Trace(string adress)
         {
             if (!IsIPAdress(adress))
                 adress = GetIPAdress(adress);
             if (adress == null)
                 return null;
             var route = GetRoute(adress);
-            return TraceAutonomousSystems(route);
+            return TraceAutonomousSystems(route, adress);
         }
 
         static string[] GetRoute(string adress)
@@ -36,35 +36,66 @@ namespace ASTrace
                 .Select(s => s.Split(' ').Where(ss => ss != "")).Select(e => String.Join(" ", e)).ToArray();
         }
 
-        string[] TraceAutonomousSystems(string[] route)
+        string[][] TraceAutonomousSystems(string[] route, string destAdress)
         {
-            var result = new List<string>();
+            var result = new List<string[]>();
             foreach (var row in route.Select(s => s.Split(' ')))
             {
+                var data = new string[5];
                 var adress = row[row.Length - 1];
                 if (!IsIPAdress(adress))
                 {
-                    TracedToEnd = false;
-                    break;
+                    continue;
                 }
-                var number = row[1];
-                var asNumber = GetASNumber(adress);
-                result.Add(number + " " + adress + " " + asNumber);
-                TracedToEnd = true;
+                data[0] = row[1];
+                data[1] = adress;
+                data[2] = GetASNumber(adress);
+                data[3] = GetCountry(adress);
+                data[4] = GetISP(adress);
+                result.Add(data);
             }
+            TracedToEnd = result.Last()[1] == destAdress;
             return result.ToArray();
         }
 
         static string GetASNumber(string adress)
         {
             var result = "";
-            using (var ws = new WebClient())
+            using (var wc = new WebClient())
             {
-                var obj = JObject.Parse(ws.DownloadString("https://stat.ripe.net/data/network-info/data.json?resource=" + adress));
+                var obj = JObject.Parse(wc.DownloadString("https://stat.ripe.net/data/network-info/data.json?resource=" + adress));
                 if (obj["data"]["asns"].HasValues)
                     result = obj["data"]["asns"][0].ToString();
-                else return "-";
+                else result = "-";
             }
+            return result;
+        }
+
+        static string GetCountry(string adress)
+        {
+            var result = "";
+            using (var wc = new WebClient())
+            {
+                var obj = JObject.Parse(wc.DownloadString("http://ipinfo.io/" + adress + "/json"));
+                if (obj.ContainsKey("country"))
+                    result = obj["country"].ToString();
+                else
+                    result = "-";
+            }
+            return result;
+        }
+
+        static string GetISP(string adress)
+        {
+            var result = "";
+            using (var wc = new WebClient())
+            {
+                var obj = JObject.Parse(wc.DownloadString("http://ipinfo.io/" + adress + "/json"));
+                if (obj.ContainsKey("org"))
+                    result = obj["org"].ToString().Split(new char[] { ' ' }, 2)[1];
+                else
+                    result = "-";
+            }            
             return result;
         }
 
