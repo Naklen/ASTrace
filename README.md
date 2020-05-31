@@ -13,4 +13,5 @@ https://drive.google.com/file/d/1XzrS7X66d4u5NSlTK44f1Oh4gIrRbitw/view?usp=shari
 МЕН-282203
 
 Результат работы программы:
+
 ![tracerRes](https://sun9-30.userapi.com/7mQdrRNQO9K2zm03hZz43ebA-o4m66V8e-Orrg/IAlBGXweDPg.jpg)
